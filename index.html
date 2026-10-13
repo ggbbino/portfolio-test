@@ -1,0 +1,283 @@
+﻿<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Данил Казначеев — сайты, приложения и Telegram-боты</title>
+  <meta name="description" content="Делаю сайты, приложения и Telegram-боты для мастеров и малого бизнеса: запись клиентов, заявки, учёт.">
+  <meta name="theme-color" content="#0c0d0f">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+
+  <!-- Превью ссылки в Telegram и ВК. После выкладки в интернет
+       поменять адрес картинки на полный: https://<адрес сайта>/img/preview.png -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Данил Казначеев — сайты, приложения и Telegram-боты">
+  <meta property="og:description" content="Для мастеров и малого бизнеса: запись клиентов, заявки, учёт.">
+  <meta property="og:image" content="img/preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=5">
+  <!-- Метка «скрипты работают»: без неё всё видно сразу, без анимаций -->
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body>
+
+  <!-- ===================== ШАПКА ===================== -->
+  <header class="bar">
+    <a class="bar__brand" href="#top" aria-label="Данил Казначеев, наверх">
+      <svg class="kmark" viewBox="0 0 100 100" aria-hidden="true"><rect x="27" y="24" width="12" height="52" rx="6"/><polyline points="72,25 46,50 72,75"/></svg>
+      <span class="bar__name">Данил Казначеев</span>
+    </a>
+    <nav class="bar__nav" aria-label="Разделы страницы">
+      <a href="#ledbox" data-for="ledbox plates">Работы</a>
+      <a href="#kto" data-for="kto">Обо мне</a>
+      <a href="#uslugi" data-for="uslugi kak">Услуги</a>
+    </nav>
+    <a class="bar__cta" href="https://t.me/gagheie" target="_blank" rel="noopener">Telegram <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main>
+
+    <!-- ===================== ПЕРВЫЙ ЭКРАН + ДЕМО ===================== -->
+    <section class="hero" id="top" data-scene>
+
+      <h1 class="hero__title">
+        <span class="ln"><span>Сайты.</span></span>
+        <span class="ln"><span>Приложения.</span></span>
+        <span class="ln ln--right"><span><sup class="tag">Telegram</sup>Боты.</span></span>
+      </h1>
+
+      <p class="hero__sub fade" style="--d:4">которые убирают <span class="mark">рутину</span> из&nbsp;работы</p>
+
+      <p class="hero__lead fade" style="--d:5">Для мастеров и&nbsp;небольших компаний: запись клиентов, заявки, учёт. Напишите, что мешает работать, — предложу решение.</p>
+
+      <div class="hero__actions fade" style="--d:6">
+        <a class="btn" href="https://t.me/gagheie" target="_blank" rel="noopener">Обсудить задачу в&nbsp;Telegram <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="link" href="#demoBox">Посмотреть пример ↓</a>
+      </div>
+
+      <!-- Демо Led_Box: телефон поднимается при прокрутке, затем идёт сценарий записи -->
+      <figure class="demo" id="demoBox">
+        <div class="demo__intro">
+          <p class="kicker">Пример — Led_Box</p>
+          <h2 class="demo__title">Клиент записывается сам. Мастер сразу видит запись.</h2>
+        </div>
+
+        <div class="crop">
+          <div class="phone" aria-hidden="true">
+            <div class="phone__screen" id="demo">
+              <div class="scr is-active" data-scr="client">
+                <p class="scr__title">Ремонт сколов и замена лобовых стёкол</p>
+                <p class="scr__h">Запишитесь сами</p>
+                <p class="scr__label">1. Что нужно сделать</p>
+                <div class="row">
+                  <span class="opt" data-t="svc">Ремонт скола<small>1 час</small></span>
+                  <span class="opt">Замена стекла<small>2 часа</small></span>
+                </div>
+                <p class="scr__label">2. День</p>
+                <div class="row row--3">
+                  <span class="opt">12 окт<small>пн</small></span>
+                  <span class="opt" data-t="day">13 окт<small>вт</small></span>
+                  <span class="opt">14 окт<small>ср</small></span>
+                </div>
+                <p class="scr__label">3. Время</p>
+                <div class="row row--4">
+                  <span class="opt opt--sm">10:00</span>
+                  <span class="opt opt--sm">13:00</span>
+                  <span class="opt opt--sm" data-t="time">14:00</span>
+                  <span class="opt opt--sm">16:00</span>
+                </div>
+                <span class="go" data-t="go">Записаться</span>
+                <div class="done">
+                  <span class="done__ok">✓</span>
+                  <b>Вы записаны</b>
+                  <span>вт, 13 октября, 14:00</span>
+                </div>
+              </div>
+              <div class="scr" data-scr="master">
+                <p class="scr__h">Вторник, 13 октября</p>
+                <div class="slot slot--busy"><b>10:00–11:00 · Скол</b><span>Kia Rio</span><em class="tag-ui tag-ui--green">Пришёл</em></div>
+                <div class="slot"><b>13:00</b><span class="free">Свободно</span></div>
+                <div class="slot slot--new"><b>14:00–15:00 · Скол</b><span>Новый клиент</span><em class="tag-ui tag-ui--violet">Записался сам</em></div>
+                <div class="slot"><b>16:00</b><span class="free">Свободно</span></div>
+              </div>
+              <div class="toast"><span class="toast__dot"></span>Новая запись: 14:00, скол</div>
+              <span class="finger"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Шаги сценария: подсвечиваются вместе с демо -->
+        <ol class="steps" aria-label="Шаги сценария">
+          <li><b>01</b>Услуга</li>
+          <li><b>02</b>День и время</li>
+          <li><b>03</b>Запись</li>
+          <li><b>04</b>Мастер видит</li>
+        </ol>
+        <p class="demo__cap" id="demoCap">Клиент открывает страницу записи мастера.</p>
+      </figure>
+    </section>
+
+    <!-- ===================== LED_BOX — КЛИЕНТСКИЙ ПРОЕКТ (светлый) ===================== -->
+    <section class="paper" id="ledbox" aria-labelledby="ledboxTitle">
+
+      <p class="kicker" data-reveal>Клиентский проект</p>
+      <h2 class="giant" id="ledboxTitle" data-reveal>Led_Box</h2>
+      <p class="case-what" data-reveal>Система онлайн-записи для&nbsp;мастера по&nbsp;ремонту автостёкол</p>
+
+      <dl class="brief">
+        <div data-reveal>
+          <dt>Заказчик</dt>
+          <dd>Мастер по&nbsp;ремонту сколов и&nbsp;замене лобовых стёкол в&nbsp;Волгограде. Работает один.</dd>
+        </div>
+        <div data-reveal>
+          <dt>Проблема</dt>
+          <dd>Клиенты звонили с&nbsp;Авито, опаздывали и&nbsp;не&nbsp;приходили.</dd>
+        </div>
+      </dl>
+      <p class="case-status" data-reveal><span class="dot" aria-hidden="true"></span>Сейчас передаётся мастеру. Отзывов и&nbsp;статистики пока нет.</p>
+
+      <!-- Интерфейс: переключатель и пара экранов -->
+      <div class="viewer" data-reveal>
+        <div class="switch" role="group" aria-label="Какой экран показать крупно">
+          <button type="button" data-show="client" aria-pressed="true">Клиент</button>
+          <button type="button" data-show="master" aria-pressed="false">Мастер</button>
+        </div>
+        <div class="pair" id="pair" data-front="client">
+          <figure class="pair__shot pair__shot--client" data-shot="client">
+            <button class="pair__hit" type="button" aria-label="Показать экран клиента крупно"></button>
+            <img src="img/ledbox-zapis-klient.jpg" alt="Страница записи для клиентов: выбор услуги и дня" width="375" height="812" decoding="async">
+          </figure>
+          <figure class="pair__shot pair__shot--master" data-shot="master">
+            <button class="pair__hit" type="button" aria-label="Показать экран мастера крупно"></button>
+            <img src="img/ledbox-ekran-den.png" alt="Экран мастера: записи на день" width="625" height="1306" decoding="async">
+          </figure>
+        </div>
+        <p class="pair__cap" id="pairCap">Клиент выбирает услугу, день и&nbsp;время.</p>
+      </div>
+
+      <!-- Характеристики — крупные числа -->
+      <dl class="spec" data-reveal>
+        <div><dt>Срок разработки</dt><dd>5 дней <span>6–10 октября 2026</span></dd></div>
+        <div><dt>Запись вперёд</dt><dd>14 дней <span>клиент видит свободное время</span></dd></div>
+        <div><dt>Самопроверка</dt><dd>4 раза <span>в&nbsp;день, письмо при поломке</span></dd></div>
+        <div><dt>Содержание</dt><dd>500 ₽ <span>разово, затем около 1,5 ₽ в&nbsp;месяц</span></dd></div>
+      </dl>
+
+      <div class="done-list" data-reveal>
+        <p class="label">Что сделано</p>
+        <ul>
+          <li><b>Экран мастера.</b> Записи на&nbsp;день, запись во&nbsp;время звонка, «пришёл / не&nbsp;пришёл», сумма и&nbsp;предоплата.</li>
+          <li><b>Страница для клиентов.</b> Запись без звонка на&nbsp;свободное время, с&nbsp;защитой от&nbsp;ложных записей.</li>
+          <li><b>Учёт.</b> Фильтры и&nbsp;PDF-отчёт за&nbsp;месяц.</li>
+          <li><b>Для мастера.</b> Значок на&nbsp;главном экране телефона и&nbsp;памятка по&nbsp;работе.</li>
+        </ul>
+      </div>
+
+      <div class="duo" data-reveal>
+        <figure><img src="img/ledbox-ekran-novaya-zapis.png" alt="Экран новой записи" width="625" height="1306" loading="lazy" decoding="async"><figcaption>Запись во&nbsp;время звонка</figcaption></figure>
+        <figure><img src="img/ledbox-ekran-zapisalsya-sam.png" alt="Запись, которую клиент сделал сам" width="625" height="1306" loading="lazy" decoding="async"><figcaption>Клиент записался сам</figcaption></figure>
+      </div>
+      <p class="duo__note">Экраны мастера с&nbsp;тестовыми данными.</p>
+
+      <a class="link paper__cta" href="https://t.me/gagheie" target="_blank" rel="noopener" data-reveal>Обсудить похожую задачу в&nbsp;Telegram ↗</a>
+    </section>
+
+    <!-- ===================== PLATES — ЛИЧНЫЙ ПРОЕКТ (тёмный) ===================== -->
+    <section class="plates" id="plates" aria-labelledby="platesTitle">
+      <p class="kicker" data-reveal>Личный проект</p>
+      <h2 class="plates__name" id="platesTitle" data-reveal>Plates</h2>
+      <p class="plates__lead" data-reveal>Дневник тренировок, которым я&nbsp;пользуюсь сам — на&nbsp;каждой тренировке.</p>
+
+      <div class="plates__stage" data-reveal>
+        <div class="plates__tabs" role="tablist" aria-label="Экраны Plates">
+          <button type="button" role="tab" id="pt-0" aria-selected="true" aria-controls="platesScreen" tabindex="0"><span>01</span>Тренировка</button>
+          <button type="button" role="tab" id="pt-1" aria-selected="false" aria-controls="platesScreen" tabindex="-1"><span>02</span>Программа</button>
+          <button type="button" role="tab" id="pt-2" aria-selected="false" aria-controls="platesScreen" tabindex="-1"><span>03</span>Прогресс</button>
+        </div>
+        <figure class="plates__screen" id="platesScreen" role="tabpanel" aria-labelledby="pt-0" aria-describedby="platesCap" data-active="0">
+          <img src="img/plates-trenirovka.jpg" alt="Plates: тренировка на сегодня" width="590" height="1190" loading="lazy" decoding="async">
+          <img src="img/plates-programma.jpg" alt="Plates: программа ближайших тренировок" width="590" height="1190" loading="lazy" decoding="async" aria-hidden="true">
+          <img src="img/plates-progress.jpg" alt="Plates: график веса тела" width="590" height="1190" loading="lazy" decoding="async" aria-hidden="true">
+        </figure>
+      </div>
+      <p class="plates__cap" id="platesCap" aria-live="polite">План на&nbsp;сегодня. Вес подставляется из&nbsp;прошлого раза, после подхода запускается таймер отдыха.</p>
+
+      <ul class="plates__facts" data-reveal>
+        <li>Ставится на&nbsp;главный экран телефона, как обычное приложение</li>
+        <li>Данные хранятся в&nbsp;телефоне и&nbsp;в&nbsp;облаке Supabase</li>
+        <li>Одна страница на&nbsp;HTML, CSS и&nbsp;JavaScript</li>
+      </ul>
+    </section>
+
+    <!-- ===================== КТО Я ===================== -->
+    <section class="about" id="kto" aria-labelledby="aboutTitle">
+      <p class="kicker" data-reveal>Кто я</p>
+      <h2 class="about__say" id="aboutTitle" data-reveal>Привет, я&nbsp;Данил. Делаю так, чтобы вашему делу работалось <span class="accent">проще</span>.</h2>
+      <div class="about__more" data-reveal>
+        <p>За&nbsp;постановку задачи, выбор решения и&nbsp;проверку результата отвечаю я. ИИ&nbsp;— мой инструмент разработки.</p>
+        <p>Пишу простым языком и&nbsp;объясняю, что делаю, на&nbsp;каждом шаге.</p>
+        <svg class="kmark about__sign" viewBox="0 0 100 100" aria-hidden="true"><rect x="27" y="24" width="12" height="52" rx="6"/><polyline points="72,25 46,50 72,75"/></svg>
+      </div>
+    </section>
+
+    <!-- ===================== УСЛУГИ: крупный список лесенкой ===================== -->
+    <section class="svc" id="uslugi" aria-labelledby="svcTitle">
+      <p class="kicker" data-reveal>Что я делаю</p>
+      <h2 class="visually-hidden" id="svcTitle">Услуги</h2>
+      <ol class="svc__list">
+        <li class="svc__item" data-reveal>
+          <h3 class="svc__name"><span class="svc__num">01</span>Сайты</h3>
+          <p>От одной страницы-визитки до&nbsp;сайта с&nbsp;записью онлайн. Быстро открываются и&nbsp;удобны с&nbsp;телефона.</p>
+        </li>
+        <li class="svc__item svc__item--shift" data-reveal>
+          <h3 class="svc__name"><span class="svc__num">02</span>Приложения</h3>
+          <p>Запись клиентов, учёт, отчёты — то, чем вы пользуетесь каждый день. Примеры&nbsp;— Led_Box и&nbsp;Plates выше.</p>
+        </li>
+        <li class="svc__item" data-reveal>
+          <h3 class="svc__name"><span class="svc__num">03</span>Telegram-боты</h3>
+          <p>Принимают заявки, отвечают клиентам, присылают вам уведомления. Работают, пока вы заняты делом.</p>
+        </li>
+      </ol>
+      <p class="svc__other" data-reveal>Нужно что-то другое? Опишите задачу&nbsp;— разберёмся вместе.</p>
+    </section>
+
+    <!-- ===================== КАК Я РАБОТАЮ ===================== -->
+    <section class="flow" id="kak" aria-labelledby="flowTitle">
+      <p class="kicker" data-reveal>Как я работаю</p>
+      <h2 class="flow__title" id="flowTitle" data-reveal>Четыре шага — и&nbsp;вы всё видите</h2>
+      <ol class="flow__list">
+        <li class="flow__step" data-reveal><span class="flow__n" aria-hidden="true">1</span><div><h3>Вопросы</h3><p>Узнаю, чем вы занимаетесь, как всё устроено сейчас и&nbsp;что мешает.</p></div></li>
+        <li class="flow__step" data-reveal><span class="flow__n" aria-hidden="true">2</span><div><h3>План и&nbsp;стоимость</h3><p>Предлагаю решение. Объём, срок и&nbsp;стоимость согласуем до&nbsp;начала работы.</p></div></li>
+        <li class="flow__step" data-reveal><span class="flow__n" aria-hidden="true">3</span><div><h3>Сборка</h3><p>Делаю по&nbsp;частям и&nbsp;показываю промежуточный результат.</p></div></li>
+        <li class="flow__step" data-reveal><span class="flow__n" aria-hidden="true">4</span><div><h3>Проверка и&nbsp;передача</h3><p>Проверяю на&nbsp;телефоне, передаю готовое и&nbsp;объясняю, как пользоваться. Доработки после сдачи обсуждаем отдельно.</p></div></li>
+      </ol>
+    </section>
+
+    <!-- ===================== ФИНАЛ: оранжевый плакат ===================== -->
+    <section class="final" id="kontakty" aria-labelledby="finalTitle">
+      <h2 class="final__title" id="finalTitle" data-reveal>Есть<br>задача?</h2>
+      <p class="final__sub" data-reveal>Давайте разберёмся.</p>
+      <p class="final__note" data-reveal>Напишите, чем занимаетесь и&nbsp;что хотите изменить. Я&nbsp;задам вопросы и&nbsp;предложу решение.</p>
+      <div class="final__actions">
+        <a class="btn btn--ink" href="https://t.me/gagheie" target="_blank" rel="noopener">Написать в&nbsp;Telegram <span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="link" href="https://vk.ru/undeniablex" target="_blank" rel="noopener">или ВКонтакте ↗</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <span>© 2026 Данил Казначеев</span>
+    <span class="foot__links"><a href="https://t.me/gagheie" target="_blank" rel="noopener">Telegram</a><a href="https://vk.ru/undeniablex" target="_blank" rel="noopener">ВКонтакте</a></span>
+  </footer>
+
+  <script src="script.js?v=5"></script>
+</body>
+</html>
