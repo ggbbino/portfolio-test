@@ -1,0 +1,29 @@
+== Навигация (navigation)
+TGS: 512x512, 60 fps, 180 frames = 3.00 s, 0.7 KB, OK
+WEBM: vp9, 100x100, 30/1 fps, 90 frames, 3.00 s, 16.0 KB, alpha_mode=1, audio streams=0
+WEBM decoded alpha: corner=0, transparent px=36%
+Motion: 124/179 frame steps move, max step 1.13, loop seam (last->first) 0.025
+Crop: max alpha on canvas edge across all frames = 0 (0 = nothing cut)
+
+== Проекты (projects)
+TGS: 512x512, 60 fps, 180 frames = 3.00 s, 0.8 KB, OK
+WEBM: vp9, 100x100, 30/1 fps, 90 frames, 3.00 s, 11.0 KB, alpha_mode=1, audio streams=0
+WEBM decoded alpha: corner=0, transparent px=56%
+Motion: 114/179 frame steps move, max step 1.52, loop seam (last->first) 0.003
+Crop: max alpha on canvas edge across all frames = 0 (0 = nothing cut)
+
+== Своё дело (business)
+TGS: 512x512, 60 fps, 180 frames = 3.00 s, 0.8 KB, OK
+WEBM: vp9, 100x100, 30/1 fps, 90 frames, 3.00 s, 34.2 KB, alpha_mode=1, audio streams=0
+WEBM decoded alpha: corner=0, transparent px=53%
+Motion: 147/179 frame steps move, max step 2.39, loop seam (last->first) 0.000
+Crop: max alpha on canvas edge across all frames = 0 (0 = nothing cut)
+
+== Личные заметки (notes)
+TGS: 512x512, 60 fps, 180 frames = 3.00 s, 1.0 KB, OK
+WEBM: vp9, 100x100, 30/1 fps, 90 frames, 3.00 s, 18.5 KB, alpha_mode=1, audio streams=0
+WEBM decoded alpha: corner=0, transparent px=52%
+Motion: 125/179 frame steps move, max step 5.70, loop seam (last->first) 0.006
+Crop: max alpha on canvas edge across all frames = 0 (0 = nothing cut)
+
+Preview GIF: 475 KB
