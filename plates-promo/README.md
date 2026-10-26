@@ -1,12 +1,12 @@
-# Plates — product film (v2)
+# Plates — product film (final)
 
 Вертикальный ролик 1080×1920, 30 fps, 29,0 с, рендер сцены напрямую в 1080×1920. Монтаж на сетке **120 BPM** (доля 0,5 с, такт 2 с).
 
 | Файл | Что это |
 |---|---|
-| `out/plates_promo_v2_master_1080x1920.mp4` | Master: H.264 High, yuv420p, 1080×1920, 30 fps + AAC (sound design, −18 LUFS) |
-| `out/plates_promo_v2_master_silent.mp4` | Master без звука — для наложения трека |
-| `preview/plates_promo_v2_preview_720.mp4` | Лёгкое превью 720×1280 для пересылки |
+| `out/plates_promo_final_master_1080x1920.mp4` | Master: H.264 High, yuv420p, 1080×1920, 30 fps + AAC (sound design, −18 LUFS) |
+| `out/plates_promo_final_master_silent.mp4` | Master без звука — для наложения трека |
+| `preview/plates_promo_final_preview_720.mp4` | Лёгкое превью 720×1280 для пересылки |
 | `out/plates_sfx_stem.wav` | Дорожка эффектов отдельно |
 | `out/beat_guide_120bpm.wav` | Метроном 120 BPM (акцент на каждом такте) — чтобы подобрать трек; в ролик не входит |
 | `preview/key_*.png` | Ключевые кадры |
