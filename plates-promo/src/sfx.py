@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Sound design for the Plates film — synthesised, no samples, no licences needed.
 
-    python3 src/sfx.py   -> build/sfx.wav (stereo 48 kHz, 28 s)
-                            build/click_120bpm.wav (beat guide for laying music, not in the film)
+    python3 src/sfx.py   -> build/sfx.wav (stereo 48 kHz, 29 s) — secondary accents under the music
 
 v2 timeline (29 s). Every event sits on the same 120 BPM grid as the picture (beat = 0.5 s), so a
 minimal-techno / cinematic-electronic track at 120 BPM drops in with its downbeat
@@ -124,46 +123,24 @@ def reverb(x, seconds=2.0, wet=0.18):
 
 
 # ---------------------------------------------------------------- events
-# 0–3 s: dark air + low drone, riser into the reveal
-d = 3.05
-t = t_axis(d)
-drone = (np.sin(2 * np.pi * 49 * t) * 0.55 + np.sin(2 * np.pi * 98 * t) * 0.18) * np.minimum(t / 1.4, 1)
-air = svf(noise(d), 1400, 0.6) * 0.10 * np.minimum(t / 1.0, 1)
-place((drone + air) * (1 - np.clip((t - 2.9) / 0.15, 0, 1)), 0.0, 0.32)
-place(sub_hit(46, 34, 1.2, 0.5), 2.0, 0.22)                       # «Система.» — a quiet first accent
-place(riser(1.0), 2.0, 0.22)
-
-place(sub_hit(70, 38, 1.6, 0.45), 3.0, 0.95)                    # reveal
-place(lowpass(noise(1.6), 900) * env_ad(1.6, 0.01, 0.5), 3.0, 0.10)
-place(sub_hit(62, 40, 0.8, 0.22), 6.0, 0.5)                      # zoom in
-place(whoosh(0.7, 500, 2600, 1.0), 5.65, 0.10)
-place(ui_click(2600), 6.62, 0.22, pan=-0.2)                      # cards settle
-for at, f in ((10.0, 62), (11.0, 58), (12.0, 54)):               # 60 / 55 / 50
-    place(sub_hit(f, 36, 1.0, 0.30), at, 0.85)
-    place(svf(noise(0.25), 1200, 1.5) * env_ad(0.25, 0.002, 0.05), at, 0.12)
-place(riser(0.7, 400, 3000), 12.6, 0.12)                        # into the match cut
-place(ui_click(3100, 0.04), 13.70, 0.30)                          # «50» lands in its field
-place(whoosh(0.55, 3200, 500, 1.4), 13.98, 0.26)                  # swipe to Прогресс
-place(blip(), 15.85, 0.18, pan=0.25)                              # progress point arrives
-place(whoosh(1.0, 400, 1400, 0.9), 15.7, 0.06)                     # camera push
-# one camera through the product: tilt-in, travel, tilt-out
-place(whoosh(1.1, 500, 2600, 0.9), 17.45, 0.16)
-place(sub_hit(60, 40, 0.8, 0.25), 18.0, 0.35)
-place(sub_hit(58, 40, 0.7, 0.22), 20.0, 0.25)
-d = 4.0
-t = t_axis(d)
-place(svf(noise(d), 900 + 500 * np.sin(np.pi * t / d), 0.8) * np.sin(np.pi * t / d) ** 2, 17.9, 0.05)
-place(whoosh(1.0, 2600, 600, 1.0), 21.05, 0.16)
-# final shot: soft hit + a quiet held pad that fades into the black
-place(sub_hit(55, 38, 1.4, 0.5), 22.0, 0.55)
-d = 4.0
-t = t_axis(d)
-pad = (np.sin(2 * np.pi * 110 * t) + 0.6 * np.sin(2 * np.pi * 164.8 * t) + 0.4 * np.sin(2 * np.pi * 220.4 * t))
-pad = lowpass(pad, 900) * np.minimum(t / 0.8, 1) * (1 - np.clip((t - 3.0) / 1.0, 0, 1)) ** 2
-place(pad * 0.06 + svf(noise(d), 2500, 0.7) * 0.025 * np.minimum(t / 0.8, 1) * (1 - t / d), 22.0, 1.0)
-# brand: one gentle, deep hit with a long tail
-place(sub_hit(52, 34, 2.6, 0.9), 26.45, 0.5)
-place(svf(noise(2.5), 700, 0.8) * env_ad(2.5, 0.05, 0.7), 26.45, 0.06)
+# Final cut runs on «BerryDeep — Minimal Techno» (≈105 BPM). The music carries the
+# energy; these are only small, secondary accents placed on the track's own beats.
+# No drone, riser or pad any more — they would fight the music.
+place(lowpass(noise(0.9), 1200) * env_ad(0.9, 0.004, 0.25), 3.015, 0.10)   # reveal: soft air under the kick
+place(sub_hit(64, 42, 0.6, 0.14), 3.015, 0.30)
+place(whoosh(0.6, 500, 2600, 1.0), 5.35, 0.08)                             # into the UI (lands on 5.87)
+place(ui_click(2600), 6.5, 0.14, pan=-0.2)                                 # cards settle
+for at in (9.87, 11.015, 12.155):                                          # 60 / 55 / 50
+    place(svf(noise(0.2), 1500, 1.5) * env_ad(0.2, 0.002, 0.04), at, 0.10)
+    place(sub_hit(60, 42, 0.5, 0.12), at, 0.22)
+place(ui_click(3100, 0.04), 13.70, 0.22)                                   # «50» lands in its field
+place(whoosh(0.5, 3200, 500, 1.4), 13.93, 0.18)                            # swipe to Прогресс
+place(whoosh(1.0, 400, 1400, 0.9), 16.0, 0.05)                             # camera push
+place(blip(), 16.16, 0.16, pan=0.25)                                       # progress point completes
+place(whoosh(1.1, 500, 2600, 0.9), 17.45, 0.12)                            # tilt into the travel
+place(whoosh(1.0, 2600, 600, 1.0), 20.88, 0.12)                            # arrival (stops on 21.88)
+place(sub_hit(55, 40, 0.8, 0.25), 21.88, 0.22)
+place(lowpass(noise(1.6), 600) * env_ad(1.6, 0.03, 0.5), 26.445, 0.05)     # logo: barely-there air
 
 mix = reverb(mix.astype(np.float64), 2.0, 0.16)
 mix[-int(0.3 * SR):] *= np.linspace(1, 0, int(0.3 * SR))[:, None]
@@ -182,11 +159,4 @@ def write(path, x):
 os.makedirs(os.path.join(ROOT, "build"), exist_ok=True)
 write(os.path.join(ROOT, "build", "sfx.wav"), mix)
 
-# beat guide: 120 BPM, accent on every bar (2 s), for laying music only
-g = np.zeros((N, 2))
-for k in range(int(DUR * 2)):
-    c = ui_click(1800 if k % 4 == 0 else 1200, 0.03)
-    i = int(k * 0.5 * SR)
-    g[i:i + len(c)] += (0.6 if k % 4 == 0 else 0.3) * c[:, None]
-write(os.path.join(ROOT, "build", "click_120bpm.wav"), g)
-print("sfx.wav + click_120bpm.wav written")
+print("sfx.wav written")

@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
 // [from, to, sub-frames]: the swipe and the camera travel get motion blur (180° shutter)
-const BLUR = [[13.98, 14.56, 5], [17.7, 21.95, 3]];
+const BLUR = [[13.93, 14.5, 5], [17.7, 21.8, 3]];
 
 (async () => {
   const args = process.argv.slice(2);
