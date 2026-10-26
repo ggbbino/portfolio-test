@@ -19,12 +19,14 @@ python3 src/sfx.py                                           # sound design + 12
 mkdir -p out preview
 # film with sound design (SFX only, -18 LUFS so a music bed fits on top)
 ffmpeg -y -loglevel error -framerate 30 -i build/frames/f_%04d.png -i build/sfx.wav \
-  -c:v libx264 -preset slow -crf 16 -pix_fmt yuv420p -profile:v high -movflags +faststart \
-  -af "loudnorm=I=-18:TP=-1.5:LRA=11" -c:a aac -b:a 192k -ar 48000 -shortest out/plates_promo_v2.mp4
+  -c:v libx264 -preset slow -crf 15 -pix_fmt yuv420p -profile:v high -level 4.2 -movflags +faststart \
+  -af "loudnorm=I=-18:TP=-1.5:LRA=11" -c:a aac -b:a 192k -ar 48000 -shortest out/plates_promo_final_master_1080x1920.mp4
 # picture only (for laying a 120 BPM track in any editor)
 ffmpeg -y -loglevel error -framerate 30 -i build/frames/f_%04d.png \
-  -c:v libx264 -preset slow -crf 16 -pix_fmt yuv420p -profile:v high -movflags +faststart -an \
-  out/plates_promo_v2_silent.mp4
+  -c:v libx264 -preset slow -crf 15 -pix_fmt yuv420p -profile:v high -level 4.2 -movflags +faststart -an \
+  out/plates_promo_final_master_silent.mp4
+ffmpeg -y -loglevel error -i out/plates_promo_final_master_1080x1920.mp4 -vf scale=720:1280:flags=lanczos \
+  -c:v libx264 -preset slow -crf 22 -pix_fmt yuv420p -movflags +faststart -c:a aac -b:a 128k preview/plates_promo_final_preview_720.mp4
 cp build/sfx.wav out/plates_sfx_stem.wav
 cp build/click_120bpm.wav out/beat_guide_120bpm.wav
 

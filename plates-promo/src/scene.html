@@ -250,9 +250,9 @@ function trainingScroll(t) {
 // progress-scene phone (before the world takes over at 17.5)
 function progressCam(t) {
   return {
-    s: kf(t, [[14.0, 1.5, 'io'], [14.5, 1.42, 'lin'], [15.75, 1.45, 'io'], [16.8, 1.62, 'lin'], [17.5, 1.64]]),
-    cx: kf(t, [[14.0, 540, 'io'], [15.75, 540, 'io'], [16.8, 412, 'lin'], [17.5, 406]]),
-    cy: kf(t, [[14.0, 1131, 'io'], [14.5, 1117, 'lin'], [15.75, 1112, 'io'], [16.8, 1205, 'lin'], [17.5, 1210]]),
+    s: kf(t, [[14.0, 1.5, 'io'], [14.5, 1.42, 'lin'], [15.75, 1.45, 'io'], [16.8, 1.78, 'lin'], [17.5, 1.80]]),
+    cx: kf(t, [[14.0, 540, 'io'], [15.75, 540, 'io'], [16.8, 376, 'lin'], [17.5, 372]]),
+    cy: kf(t, [[14.0, 1131, 'io'], [14.5, 1117, 'lin'], [15.75, 1112, 'io'], [16.8, 1243, 'lin'], [17.5, 1247]]),
   };
 }
 
@@ -261,8 +261,8 @@ const Y_PLANE = 1108 + 150, H_PLANE = 1400, Y_FINAL = Y_PLANE + H_PLANE + 170;
 function world(t) {
   const p = progressCam(17.5);
   const u0 = 554 - (p.cy - 960) / p.s;
-  const S = kf(t, [[17.5, p.s, 'io'], [18.4, 1.2, 'lin'], [21.1, 1.2, 'io'], [22.0, 1.08, 'lin'], [25.6, 1.115]]);
-  const sEnd = 1.08;
+  const S = kf(t, [[17.5, p.s, 'io'], [18.4, 1.2, 'lin'], [21.1, 1.2, 'io'], [22.0, 1.175, 'lin'], [25.6, 1.21]]);
+  const sEnd = 1.175;
   const uf = Y_FINAL + 554 + 60 / sEnd;
   return {
     S,
@@ -323,7 +323,7 @@ window.render = function (t) {
     blur = 22 * (1 - ramp(t, 3.0, 4.0));
     bright = 0.2 + 0.8 * ramp(t, 3.0, 4.3);
     const rec = kf(t, [[10.0, 0, 'expo'], [10.6, 1], [13.0, 1, 'io'], [13.75, 0]]);
-    blur += 15 * rec; bright *= 1 - 0.68 * rec;
+    blur += 12 * rec; bright *= 1 - 0.56 * rec;     // UI stays readable behind the numbers
   } else if (t < 17.5) {
     st = progressCam(t);
   }
@@ -384,12 +384,14 @@ window.render = function (t) {
     const dot = $('dot'), ring = $('ring');
     const dx = Math.min(ex, LX1 - 3);
     dot.style.left = dx + 'px'; dot.style.top = lineY(dx) + 'px';
-    const pulse = ramp(t, 15.85, 16.35, 'out');
-    dot.style.opacity = ramp(t, 14.45, 14.6) * (1 - ramp(t, 15.8, 16.0));   // hands over to the UI's own end point
-    dot.style.transform = `scale(${1 + 0.25 * Math.sin(Math.PI * pulse)})`;
+    const pulse = ramp(t, 15.85, 16.45, 'out');
+    const hit = Math.sin(Math.PI * clamp((t - 15.85) / 0.45));
+    dot.style.opacity = ramp(t, 14.45, 14.6) * (1 - ramp(t, 17.4, 17.7));   // the point stays the anchor
+    dot.style.transform = `scale(${1 + 0.5 * hit})`;
+    dot.style.boxShadow = `0 0 0 2.5px #1b1c21, 0 0 ${14 + 10 * hit}px ${2 + 3 * hit}px rgba(255,122,31,${(0.35 + 0.3 * hit).toFixed(3)})`;
     ring.style.left = dot.style.left; ring.style.top = dot.style.top;
-    ring.style.opacity = (t > 15.85 ? 0.8 : 0) * (1 - pulse);
-    ring.style.transform = `scale(${1 + 2.6 * pulse})`;
+    ring.style.opacity = (t > 15.85 ? 1 : 0) * (1 - pulse);
+    ring.style.transform = `scale(${1 + 3.4 * pulse})`;
   }
 
   // ================= WEIGHTS 10–14 =================
@@ -451,7 +453,7 @@ window.render = function (t) {
     let src = null, o = 0;
     if (t < 6.5 && st) { src = st; o = phoneO * (1 - ramp(t, 5.8, 6.5)); }
     else if (t >= 21.6) {
-      src = { cx: 540, cy: 900, s: W ? W.S : 1.08, rx: 0, ry: kf(t, [[21.0, -10, 'io'], [22.05, -7, 'sine'], [25.6, -3.5]]) };
+      src = { cx: 540, cy: 900, s: W ? W.S : 1.175, rx: 0, ry: kf(t, [[21.0, -10, 'io'], [22.05, -7, 'sine'], [25.6, -3.5]]) };
       o = ramp(t, 21.8, 22.5);
     }
     if (src) {
