@@ -4,7 +4,7 @@
     python3 src/sfx.py   -> build/sfx.wav (stereo 48 kHz, 28 s)
                             build/click_120bpm.wav (beat guide for laying music, not in the film)
 
-Every event sits on the same 120 BPM grid as the picture (beat = 0.5 s), so a
+v2 timeline (29 s). Every event sits on the same 120 BPM grid as the picture (beat = 0.5 s), so a
 minimal-techno / cinematic-electronic track at 120 BPM drops in with its downbeat
 at 0:00 (or 0:03 for the kick entry) and all hits line up.
 """
@@ -14,7 +14,7 @@ import wave
 import numpy as np
 
 SR = 48000
-DUR = 28.0
+DUR = 29.0
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 rng = np.random.default_rng(11)
 N = int(SR * DUR)
@@ -130,7 +130,8 @@ t = t_axis(d)
 drone = (np.sin(2 * np.pi * 49 * t) * 0.55 + np.sin(2 * np.pi * 98 * t) * 0.18) * np.minimum(t / 1.4, 1)
 air = svf(noise(d), 1400, 0.6) * 0.10 * np.minimum(t / 1.0, 1)
 place((drone + air) * (1 - np.clip((t - 2.9) / 0.15, 0, 1)), 0.0, 0.32)
-place(riser(1.3), 1.70, 0.22)
+place(sub_hit(46, 34, 1.2, 0.5), 2.0, 0.22)                       # «Система.» — a quiet first accent
+place(riser(1.0), 2.0, 0.22)
 
 place(sub_hit(70, 38, 1.6, 0.45), 3.0, 0.95)                    # reveal
 place(lowpass(noise(1.6), 900) * env_ad(1.6, 0.01, 0.5), 3.0, 0.10)
@@ -143,22 +144,26 @@ for at, f in ((10.0, 62), (11.0, 58), (12.0, 54)):               # 60 / 55 / 50
 place(riser(0.7, 400, 3000), 12.6, 0.12)                        # into the match cut
 place(ui_click(3100, 0.04), 13.70, 0.30)                          # «50» lands in its field
 place(whoosh(0.55, 3200, 500, 1.4), 13.98, 0.26)                  # swipe to Прогресс
-place(blip(), 16.32, 0.16, pan=0.25)                              # chart end point
-place(ui_click(2200), 17.47, 0.28, pan=-0.1)                      # tap on the picker
-place(whoosh(0.3, 1800, 3500, 2.0), 17.55, 0.06)
-place(sub_hit(60, 40, 0.8, 0.25), 18.0, 0.45)
-for at, d in ((18.82, 0.6), (19.97, 0.6), (21.12, 0.85)):         # montage whips
-    place(whoosh(d, 700, 3000, 1.1), at, 0.20, pan=0.3)
+place(blip(), 15.85, 0.18, pan=0.25)                              # progress point arrives
+place(whoosh(1.0, 400, 1400, 0.9), 15.7, 0.06)                     # camera push
+# one camera through the product: tilt-in, travel, tilt-out
+place(whoosh(1.1, 500, 2600, 0.9), 17.45, 0.16)
+place(sub_hit(60, 40, 0.8, 0.25), 18.0, 0.35)
+place(sub_hit(58, 40, 0.7, 0.22), 20.0, 0.25)
+d = 4.0
+t = t_axis(d)
+place(svf(noise(d), 900 + 500 * np.sin(np.pi * t / d), 0.8) * np.sin(np.pi * t / d) ** 2, 17.9, 0.05)
+place(whoosh(1.0, 2600, 600, 1.0), 21.05, 0.16)
 # final shot: soft hit + a quiet held pad that fades into the black
 place(sub_hit(55, 38, 1.4, 0.5), 22.0, 0.55)
-d = 3.0
+d = 4.0
 t = t_axis(d)
 pad = (np.sin(2 * np.pi * 110 * t) + 0.6 * np.sin(2 * np.pi * 164.8 * t) + 0.4 * np.sin(2 * np.pi * 220.4 * t))
-pad = lowpass(pad, 900) * np.minimum(t / 0.8, 1) * (1 - np.clip((t - 2.2) / 0.8, 0, 1)) ** 2
+pad = lowpass(pad, 900) * np.minimum(t / 0.8, 1) * (1 - np.clip((t - 3.0) / 1.0, 0, 1)) ** 2
 place(pad * 0.06 + svf(noise(d), 2500, 0.7) * 0.025 * np.minimum(t / 0.8, 1) * (1 - t / d), 22.0, 1.0)
 # brand: one gentle, deep hit with a long tail
-place(sub_hit(52, 34, 2.6, 0.9), 25.45, 0.5)
-place(svf(noise(2.5), 700, 0.8) * env_ad(2.5, 0.05, 0.7), 25.45, 0.06)
+place(sub_hit(52, 34, 2.6, 0.9), 26.45, 0.5)
+place(svf(noise(2.5), 700, 0.8) * env_ad(2.5, 0.05, 0.7), 26.45, 0.06)
 
 mix = reverb(mix.astype(np.float64), 2.0, 0.16)
 mix[-int(0.3 * SR):] *= np.linspace(1, 0, int(0.3 * SR))[:, None]

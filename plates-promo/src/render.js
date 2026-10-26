@@ -6,13 +6,13 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
-const BLUR = [[13.98, 14.56], [18.8, 19.45], [19.95, 20.6], [21.1, 22.0]];
-const SUB = 5;
+// [from, to, sub-frames]: the swipe and the camera travel get motion blur (180° shutter)
+const BLUR = [[13.98, 14.56, 5], [17.7, 21.95, 3]];
 
 (async () => {
   const args = process.argv.slice(2);
   const out = args[0];
-  const fps = +(args[1] || 30), dur = +(args[2] || 28);
+  const fps = +(args[1] || 30), dur = +(args[2] || 29);
   const timesArg = args.find((a) => a.startsWith('--times='));
   fs.mkdirSync(out, { recursive: true });
   const meta = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets', 'meta.json'), 'utf8'));
@@ -30,8 +30,8 @@ const SUB = 5;
     const n = Math.round(fps * dur);
     for (let i = 0; i < n; i++) {
       const t = i / fps;
-      const blur = BLUR.some(([a, b]) => t >= a && t <= b);
-      const times = blur ? [...Array(SUB).keys()].map((k) => t + (k / (SUB - 1) - 0.5) * (0.5 / fps)) : [t];
+      const w = BLUR.find(([a, b]) => t >= a && t <= b);
+      const times = w ? [...Array(w[2]).keys()].map((k) => t + (k / (w[2] - 1) - 0.5) * (0.5 / fps)) : [t];
       jobs.push({ name: `f_${String(i).padStart(4, '0')}`, times });
     }
   }

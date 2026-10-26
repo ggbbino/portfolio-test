@@ -3,11 +3,13 @@
 <head>
 <meta charset="utf-8">
 <!--
-  Plates — product film, 1080×1920.
-  The whole film is one deterministic timeline: window.render(t) puts every
-  layer into its state at time t (seconds). render.js steps t frame by frame.
-  Grid: 120 BPM → beat = 0.5 s, bar = 2 s. Hits on 3.0, 6.0, 10.0, 11.0,
-  12.0, 14.0, 18.0, 22.0, 25.5.
+  Plates — product film v2, 1080×1920, 29 s.
+  One deterministic timeline: window.render(t) sets every layer for time t.
+  Grid 120 BPM (beat 0.5 s, bar 2 s). Hits: 3.0 reveal · 6.0 into the UI ·
+  10 / 11 / 12 weights · 14.0 swipe · 18.0 / 20.0 travel pulses · 22.0 stop · 26.5 logo.
+
+  From 17.5 s the progress screen, the program page and the final phone live
+  on one surface ("world") filmed by one camera: tilt in, travel, tilt out.
 -->
 <style>
   @font-face { font-family: D; font-weight: 400; src: url(fonts/InterDisplay-Regular.otf); }
@@ -20,100 +22,118 @@
            perspective-origin: 540px 960px; font-family: D, sans-serif; color: #f2f2f2;
            -webkit-font-smoothing: antialiased; }
   .abs { position: absolute; left: 0; top: 0; }
-  .light { position: absolute; inset: 0; pointer-events: none; }
-  #cool { background: radial-gradient(900px 700px at 30% 34%, rgba(130,160,210,0.075), transparent 70%); }
-  #warm { background: radial-gradient(760px 900px at 50% 58%, rgba(255,120,40,0.10), transparent 70%),
-                      radial-gradient(1200px 500px at 50% 100%, rgba(255,140,60,0.05), transparent 70%); }
-  #vignette { position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(1300px 1700px at 50% 48%, transparent 55%, rgba(0,0,0,0.55) 100%),
+  .fill { position: absolute; inset: 0; pointer-events: none; }
+  img { display: block; }
+
+  /* light */
+  #cool { background: radial-gradient(1000px 820px at 34% 40%, rgba(150,170,205,0.06), transparent 70%); }
+  #beam { position: absolute; left: -300px; top: 520px; width: 1700px; height: 520px; transform-origin: 50% 50%;
+          background: radial-gradient(closest-side, rgba(205,215,235,0.10), rgba(205,215,235,0.035) 55%, transparent);
+          filter: blur(30px); pointer-events: none; }
+  #warm { position: absolute; left: 0; top: 0; width: 1500px; height: 1700px; pointer-events: none;
+          background: radial-gradient(closest-side, rgba(255,128,48,0.16), rgba(255,110,40,0.06) 45%, transparent);
+          filter: blur(10px); }
+  #column { position: absolute; left: 240px; top: -200px; width: 600px; height: 1500px; pointer-events: none;
+            background: radial-gradient(closest-side, rgba(255,190,140,0.055), transparent); filter: blur(20px); }
+  #floor { position: absolute; left: 0; top: 0; width: 560px; height: 90px; border-radius: 50%;
+           background: radial-gradient(closest-side, rgba(0,0,0,0.75), transparent); filter: blur(18px); }
+  #fog { background: linear-gradient(to bottom, #050506 0%, rgba(5,5,6,0.0) 26%, rgba(5,5,6,0.0) 70%, #050506 100%); }
+  #vignette { background: radial-gradient(1300px 1700px at 50% 48%, transparent 55%, rgba(0,0,0,0.55) 100%),
                 linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 14%, transparent 84%, rgba(0,0,0,0.5)); }
   #grain { position: absolute; inset: -64px; background: url(../assets/grain.png); opacity: 0.045;
            mix-blend-mode: overlay; pointer-events: none; }
-  #black { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+  #black { background: #000; opacity: 0; }
 
+  /* type */
+  #introWrap { position: absolute; inset: 0; transform-origin: 400px 900px; }
   .line { position: absolute; left: 150px; font-size: 60px; font-weight: 500; letter-spacing: -0.01em;
-          white-space: nowrap; will-change: transform, filter, opacity; }
-  .caption { position: absolute; left: 0; width: 1080px; text-align: center; font-size: 44px;
+          white-space: nowrap; }
+  #l3 { font-size: 76px; font-weight: 600; letter-spacing: -0.02em; }
+  .caption { position: absolute; left: 0; width: 1080px; text-align: center; font-size: 40px;
              font-weight: 500; letter-spacing: -0.005em; color: #ececec; white-space: nowrap; }
   #plates { position: absolute; left: 0; width: 1080px; top: 236px; text-align: center; font-size: 22px;
             font-weight: 500; letter-spacing: 0.42em; color: #d8d8d8; padding-left: 0.42em; }
 
+  /* phones / surfaces */
   .phone { position: absolute; left: 0; top: 0; width: 512px; height: 1108px; transform-origin: 0 0;
            border-radius: 60px; overflow: hidden; background: var(--app); }
-  .phone .edge { position: absolute; inset: 0; border-radius: 60px; pointer-events: none;
-                 box-shadow: inset 0 0 0 1.2px rgba(255,255,255,0.10), inset 0 1.5px 0 rgba(255,255,255,0.10); }
+  .edge { position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+          box-shadow: inset 0 0 0 1.2px rgba(255,255,255,0.10), inset 0 1.5px 0 rgba(255,255,255,0.12); }
   .shadow { position: absolute; left: 0; top: 0; width: 512px; height: 1108px; transform-origin: 0 0;
-            border-radius: 60px; box-shadow: 0 60px 140px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.6); }
+            border-radius: 60px; box-shadow: 0 40px 110px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.5); }
   .screen { position: absolute; left: 0; top: 0; width: 512px; height: 1108px; overflow: hidden;
             background: var(--app); }
   .slice { position: absolute; left: 0; width: 512px; background-image: url(../assets/training_page.png);
            background-repeat: no-repeat; }
   .topfade { position: absolute; left: 0; top: 0; width: 512px; height: 96px;
              background: linear-gradient(to bottom, var(--app) 55%, rgba(11,12,15,0)); }
-  img { display: block; }
+  #reflect { position: absolute; left: 0; top: 0; width: 512px; height: 1108px; transform-origin: 0 0;
+             border-radius: 60px; overflow: hidden;
+             -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.9), transparent 22%); }
+  #plane { position: absolute; left: 0; top: 0; width: 512px; height: 1400px; transform-origin: 0 0;
+           border-radius: 54px; overflow: hidden; background: var(--app) url(../assets/program_page.png) 0 -90px / 512px auto no-repeat;
+           -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent); }
+  #dot { position: absolute; left: 0; top: 0; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%;
+         background: #ff7a1f; box-shadow: 0 0 0 2.5px #1b1c21, 0 0 14px 2px rgba(255,122,31,0.35); }
+  #ring { position: absolute; left: 0; top: 0; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%;
+          box-shadow: 0 0 0 1.5px rgba(255,140,60,0.9); }
 
+  /* weights */
   #weights { position: absolute; inset: 0; pointer-events: none; }
   .wlabel { position: absolute; left: 150px; top: 690px; font-size: 32px; font-weight: 500;
             color: rgba(236,236,236,0.62); white-space: nowrap; }
   .wclip { position: absolute; left: 136px; top: 742px; width: 820px; height: 330px; overflow: hidden; }
   .wnum { position: absolute; left: 0; top: 0; font-size: 320px; line-height: 330px; font-weight: 600;
           letter-spacing: -0.035em; font-variant-numeric: tabular-nums; white-space: nowrap; color: #f4f4f4; }
-  .wnum .u { font-size: 72px; font-weight: 500; letter-spacing: 0; color: rgba(236,236,236,0.5);
-             margin-left: 18px; }
+  .wnum .u { font-size: 72px; font-weight: 500; letter-spacing: 0; color: rgba(236,236,236,0.5); margin-left: 18px; }
   #fly { position: absolute; left: 0; top: 0; font-size: 320px; line-height: 330px; font-weight: 600;
          letter-spacing: -0.035em; color: #f4f4f4; transform-origin: 0 0; white-space: nowrap; }
   #chip { position: absolute; left: 150px; top: 1096px; width: 201px; height: 43px; transform-origin: 0 0;
-          background: url(../assets/training_page.png) -44px -1545px; background-size: 512px auto;
-          border-radius: 21px; }
+          background: url(../assets/training_page.png) -44px -1545px; background-size: 512px auto; border-radius: 21px; }
 
-  .panel { position: absolute; left: 0; top: 0; transform-origin: 0 0; border-radius: 30px; overflow: hidden; }
   #outro-logo { position: absolute; left: 425px; top: 794px; width: 230px; }
-  #outro-name { position: absolute; left: 0; width: 1080px; top: 1098px; text-align: center; font-size: 25px;
-                font-weight: 500; color: #fff; letter-spacing: 0.22em; padding-left: 0.22em; }
+  #outro-name { position: absolute; left: 0; width: 1080px; top: 1096px; text-align: center; font-size: 27px;
+                font-weight: 500; color: #fff; letter-spacing: 0.2em; padding-left: 0.2em; }
   #final-cap span { display: inline-block; margin: 0 0.12em; }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div id="cool" class="light"></div>
-  <div id="warm" class="light"></div>
+  <div id="cool" class="fill"></div>
+  <div id="beam"></div>
+  <div id="column"></div>
+  <div id="warm"></div>
+  <div id="floor"></div>
 
-  <!-- INTRO -->
-  <div id="l1" class="line" style="top:800px">Не заметки.</div>
-  <div id="l2" class="line" style="top:880px">Не хаос.</div>
-  <div id="l3" class="line" style="top:960px;font-weight:600">Система.</div>
-
+  <div id="introWrap">
+    <div id="l1" class="line" style="top:800px">Не заметки.</div>
+    <div id="l2" class="line" style="top:880px">Не хаос.</div>
+    <div id="l3" class="line" style="top:958px">Система.</div>
+  </div>
   <div id="plates">PLATES</div>
 
-  <!-- montage panels (behind the phone in z-order is fine: they never overlap it) -->
-  <div id="p2s" class="shadow" style="width:480px;height:533px;border-radius:30px"></div>
-  <img id="p2" class="panel" src="../assets/card_schedule.png">
-  <div id="p3s" class="shadow" style="width:480px;height:645px;border-radius:30px"></div>
-  <img id="p3" class="panel" src="../assets/card_table.png">
+  <!-- reflection of the phone on the "floor" (reveal + final) -->
+  <div id="reflect"><img src="../build/final_screen.png" width="512" height="1108"></div>
 
-  <!-- final phone -->
+  <!-- world surfaces -->
+  <div id="plane"><div class="edge"></div></div>
   <div id="f-shadow" class="shadow"></div>
-  <div id="fphone" class="phone">
-    <img src="../build/final_screen.png" width="512" height="1108">
-    <div class="edge"></div>
-  </div>
+  <div id="fphone" class="phone"><img src="../build/final_screen.png" width="512" height="1108"><div class="edge"></div></div>
 
-  <!-- main phone -->
   <div id="m-shadow" class="shadow"></div>
   <div id="phone" class="phone">
     <div id="trainScreen" class="screen"></div>
     <div id="progScreen" class="screen">
       <img src="../assets/progress_page_empty_chart.png" class="abs" width="512">
       <div id="chartReveal" class="abs"></div>
+      <div id="ring"></div>
+      <div id="dot"></div>
       <img id="progTab" src="../assets/progress_overlay.png" class="abs" width="512">
-      <img id="selActive" src="../assets/select_active.png" class="abs">
-      <img id="dropdown" src="../assets/dropdown.png" class="abs">
       <div class="topfade"></div>
     </div>
     <div class="edge" id="phoneEdge"></div>
   </div>
 
-  <!-- WEIGHTS -->
   <div id="weights">
     <div id="wl1" class="wlabel">Жим штанги лёжа</div>
     <div id="wl2" class="wlabel">Тяга в хаммере</div>
@@ -127,18 +147,14 @@
     <div id="fly">50</div>
   </div>
 
-  <div id="cap1" class="caption" style="top:190px">Программа под рукой</div>
-  <div id="cap2" class="caption" style="top:190px">Прогресс без шума.</div>
-  <div id="final-cap" class="caption" style="top:1600px;font-size:56px">
-    <span>Сделал</span><span>под</span><span>себя.</span></div>
+  <div id="cap2" class="caption" style="top:196px">Прогресс без шума.</div>
+  <div id="final-cap" class="caption" style="top:1640px;font-size:54px"><span>Сделал</span><span>под</span><span>себя.</span></div>
 
-  <div id="vignette"></div>
-  <div id="black"></div>
-
-  <!-- OUTRO (above the black) -->
+  <div id="fog" class="fill"></div>
+  <div id="vignette" class="fill"></div>
+  <div id="black" class="fill"></div>
   <img id="outro-logo" src="../assets/logo_white.png">
   <div id="outro-name">Danil Kaznacheev</div>
-
   <div id="grain"></div>
 </div>
 
@@ -150,13 +166,13 @@ const $ = (id) => document.getElementById(id);
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 const E = {
   lin: (x) => x,
-  io: (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,       // cubic in-out
-  io5: (x) => x < 0.5 ? 16 * x ** 5 : 1 - Math.pow(-2 * x + 2, 5) / 2,         // quint in-out (whips)
+  io: (x) => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  io5: (x) => x < 0.5 ? 16 * x ** 5 : 1 - Math.pow(-2 * x + 2, 5) / 2,
+  sine: (x) => -(Math.cos(Math.PI * x) - 1) / 2,
   out: (x) => 1 - Math.pow(1 - x, 3),
   expo: (x) => x === 1 ? 1 : 1 - Math.pow(2, -10 * x),
   in: (x) => x * x * x,
 };
-// keyframes: [[t, value, easeToNext], ...]
 function kf(t, keys) {
   if (t <= keys[0][0]) return keys[0][1];
   for (let i = 0; i < keys.length - 1; i++) {
@@ -165,13 +181,19 @@ function kf(t, keys) {
   }
   return keys[keys.length - 1][1];
 }
-// a 0→1 ramp
 const ramp = (t, t0, t1, e = 'out') => E[e](clamp((t - t0) / (t1 - t0)));
+// trapezoid velocity: accelerate over a, cruise, decelerate over d → 0..1 of distance
+function travel(t, t0, t1, a, d) {
+  const T = t1 - t0, x = clamp(t - t0, 0, T);
+  const vmax = 1 / (T - a / 2 - d / 2);
+  if (x < a) return 0.5 * vmax * x * x / a;
+  if (x < T - d) return vmax * (a / 2 + (x - a));
+  const r = T - x;
+  return 1 - 0.5 * vmax * r * r / d;
+}
 
-function setPhone(el, sh, { cx, cy, s, rx = 0, ry = 0 }) {
-  const tf = `translate3d(${cx}px, ${cy}px, 0) rotateX(${rx}deg) rotateY(${ry}deg) scale(${s}) translate(-256px, -554px)`;
-  el.style.transform = tf;
-  if (sh) sh.style.transform = tf;
+function phoneTf({ cx, cy, s, rx = 0, ry = 0 }) {
+  return `translate3d(${cx}px, ${cy}px, 0) rotateX(${rx}deg) rotateY(${ry}deg) scale(${s}) translate(-256px, -554px)`;
 }
 function textFx(el, { o = 1, blur = 0, y = 0, x = 0, ls = null, sc = 1 }) {
   el.style.opacity = o;
@@ -180,7 +202,7 @@ function textFx(el, { o = 1, blur = 0, y = 0, x = 0, ls = null, sc = 1 }) {
   if (ls !== null) el.style.letterSpacing = ls + 'em';
 }
 
-// ---------- training screen: page split into cards for stagger ----------
+// ---------- training screen as card slices ----------
 const trainScreen = $('trainScreen');
 const cuts = [0].concat(META.training.cuts.filter((c, i, a) => i === 0 || c - a[i - 1] > 40));
 const slices = [];
@@ -194,112 +216,149 @@ for (let i = 0; i < cuts.length; i++) {
   trainScreen.appendChild(d);
   slices.push({ el: d, y0, i });
 }
-const tf = document.createElement('div'); tf.className = 'topfade'; trainScreen.appendChild(tf);
+{ const tf = document.createElement('div'); tf.className = 'topfade'; trainScreen.appendChild(tf); }
 const trainOverlay = document.createElement('img');
 trainOverlay.src = '../assets/training_overlay.png';
 trainOverlay.className = 'abs'; trainOverlay.style.top = META.training_overlay_y + 'px'; trainOverlay.width = 512;
 trainScreen.appendChild(trainOverlay);
 
-// progress screen geometry
+// ---------- progress screen ----------
 const [cx0, cy0, cx1, cy1] = META.progress.chart;
 const cr = $('chartReveal');
 Object.assign(cr.style, { left: cx0 + 'px', top: cy0 + 'px', width: (cx1 - cx0) + 'px', height: (cy1 - cy0) + 'px',
   backgroundImage: 'url(../assets/progress_page.png)', backgroundPosition: `${-cx0}px ${-cy0}px`,
   backgroundSize: `512px ${META.progress.h}px` });
 $('progTab').style.top = META.progress_overlay_y + 'px';
-Object.assign($('dropdown').style, { left: META.dropdown.x + 'px', top: META.dropdown.y + 'px', transformOrigin: '50% 0' });
-Object.assign($('selActive').style, { left: META.dropdown.select[0] + 'px', top: META.dropdown.select[1] + 'px' });
+const LINE = META.progress.line;                // [[x, y], ...] screen px
+const LX0 = LINE[0][0], LX1 = LINE[LINE.length - 1][0] + 3;
+function lineY(x) {
+  if (x <= LINE[0][0]) return LINE[0][1];
+  for (let i = 0; i < LINE.length - 1; i++) {
+    const [xa, ya] = LINE[i], [xb, yb] = LINE[i + 1];
+    if (x <= xb) return ya + (yb - ya) * (x - xa) / (xb - xa);
+  }
+  return LINE[LINE.length - 1][1];
+}
 
-// scroll positions on the training page (page px)
-const S_EX1 = 455;     // exercise 1 with its 60 kg sets in view
-const S_EX2 = 1320;    // Тяга в хаммере, 55 kg
-const S_EX7 = 4964;    // Трицепс на блоке, 50 kg
-const FIELD50 = [168, 5529];  // centre of the first «50» field on the page
-
+const S_EX1 = 455, S_EX2 = 1320, S_EX7 = 4964;
+const FIELD50 = [168, 5529];
 function trainingScroll(t) {
   return kf(t, [[0, 0], [6.3, 0, 'io'], [9.7, S_EX1], [10.9, S_EX1, 'io'], [11.45, S_EX2],
                 [11.9, S_EX2, 'io'], [12.5, S_EX7]]);
 }
 
-// ---------- the timeline ----------
+// progress-scene phone (before the world takes over at 17.5)
+function progressCam(t) {
+  return {
+    s: kf(t, [[14.0, 1.5, 'io'], [14.5, 1.42, 'lin'], [15.75, 1.45, 'io'], [16.8, 1.62, 'lin'], [17.5, 1.64]]),
+    cx: kf(t, [[14.0, 540, 'io'], [15.75, 540, 'io'], [16.8, 412, 'lin'], [17.5, 406]]),
+    cy: kf(t, [[14.0, 1131, 'io'], [14.5, 1117, 'lin'], [15.75, 1112, 'io'], [16.8, 1205, 'lin'], [17.5, 1210]]),
+  };
+}
+
+// ---------- world (17.5 → end) ----------
+const Y_PLANE = 1108 + 150, H_PLANE = 1400, Y_FINAL = Y_PLANE + H_PLANE + 170;
+function world(t) {
+  const p = progressCam(17.5);
+  const u0 = 554 - (p.cy - 960) / p.s;
+  const S = kf(t, [[17.5, p.s, 'io'], [18.4, 1.2, 'lin'], [21.1, 1.2, 'io'], [22.0, 1.08, 'lin'], [25.6, 1.115]]);
+  const sEnd = 1.08;
+  const uf = Y_FINAL + 554 + 60 / sEnd;
+  return {
+    S,
+    wx: kf(t, [[17.5, p.cx - 540, 'io'], [18.4, 0]]),
+    rx: kf(t, [[17.5, 0, 'io'], [18.4, 30, 'lin'], [21.1, 30, 'io'], [22.05, 4]]),
+    rz: kf(t, [[17.5, 0, 'io'], [18.4, -6, 'lin'], [21.1, -6, 'io'], [22.05, 0]]),
+    u: u0 + (uf - u0) * travel(t, 17.5, 22.05, 0.75, 0.95),
+  };
+}
+const worldTf = (w, y) => `translate3d(${540 + w.wx}px, 960px, 0) rotateZ(${w.rz}deg) rotateX(${w.rx}deg) scale(${w.S}) translate(-256px, ${y - w.u}px)`;
+
+// ---------- render ----------
 window.render = function (t) {
-  // lights / global
-  $('cool').style.opacity = kf(t, [[0, 0.5], [1.5, 1, 'io'], [3.2, 0.0]]);
-  $('warm').style.opacity = kf(t, [[3.1, 0, 'out'], [4.6, 1], [9.8, 1, 'io'], [10.4, 0.45], [13.4, 0.45, 'io'],
-                                   [14.0, 1], [24.4, 1, 'io'], [25, 0]]);
-  $('grain').style.backgroundPosition = `${(t * 977) % 512 | 0}px ${(t * 613) % 512 | 0}px`;
-  $('black').style.opacity = kf(t, [[0, 0], [24.3, 0, 'io'], [25.0, 1]]);
-
-  // ---- INTRO 0–3
-  const lineIn = (t0) => ({ o: ramp(t, t0, t0 + 0.8), blur: 14 * (1 - ramp(t, t0, t0 + 0.9)),
-                            y: 16 * (1 - ramp(t, t0, t0 + 1.0, 'expo')), ls: -0.01 + 0.07 * (1 - ramp(t, t0, t0 + 1.1)) });
-  const out = ramp(t, 2.62, 3.0, 'in');
-  let a = lineIn(0.35);
-  a.o *= kf(t, [[1.3, 1], [2.0, 0.26]]) * (1 - out); a.blur += 10 * out; a.y -= 14 * out;
-  textFx($('l1'), a);
-  a = lineIn(1.0);
-  a.o *= kf(t, [[1.9, 1], [2.5, 0.3]]) * (1 - out); a.blur += 10 * out; a.y -= 14 * out;
-  textFx($('l2'), a);
-  a = lineIn(1.72);
-  const out3 = ramp(t, 2.72, 3.02, 'in');
-  a.o *= 1 - out3; a.blur += 12 * out3; a.y -= 10 * out3;
-  textFx($('l3'), a);
-
-  // ---- PLATES label
-  {
-    const i = ramp(t, 3.7, 4.6), o = ramp(t, 5.4, 6.0, 'io');
-    textFx($('plates'), { o: 0.6 * i * (1 - o), blur: 6 * (1 - i) + 4 * o, ls: 0.42 + 0.22 * (1 - i), y: -6 * o });
-  }
-
-  // ---- MAIN PHONE
   const phone = $('phone'), msh = $('m-shadow');
-  let st = { cx: 540, cy: 1010, s: 1.2, rx: 0, ry: 0 };
-  st.s = kf(t, [[3.0, 1.06, 'expo'], [4.7, 1.2, 'lin'], [6.0, 1.215, 'io'], [7.1, 1.5, 'lin'], [10.0, 1.5, 'expo'],
-                [10.6, 1.38, 'lin'], [13.0, 1.38, 'io'], [13.75, 1.5, 'lin'], [14.0, 1.5, 'io'], [14.5, 1.42, 'lin'],
-                [17.4, 1.47]]);
-  st.cy = kf(t, [[3.0, 1150, 'expo'], [4.7, 1010, 'lin'], [6.0, 1000, 'io'], [7.1, 1131, 'lin'], [10.0, 1131, 'expo'],
-                 [10.6, 1080, 'lin'], [13.0, 1080, 'io'], [13.75, 1131, 'lin'], [14.0, 1131, 'io'], [14.5, 1117, 'lin'],
-                 [17.4, 1130]]);
-  st.rx = kf(t, [[3.0, 16, 'expo'], [4.5, 0]]);
-  let phoneO = ramp(t, 3.0, 3.8);
-  let blur = 18 * (1 - ramp(t, 3.0, 3.9));
-  let bright = 0.35 + 0.65 * ramp(t, 3.0, 4.2);
-  // weights: phone recedes
-  const rec = kf(t, [[10.0, 0, 'expo'], [10.6, 1], [13.0, 1, 'io'], [13.75, 0]]);
-  blur += 15 * rec; bright *= 1 - 0.68 * rec;
+  $('grain').style.backgroundPosition = `${(t * 977) % 512 | 0}px ${(t * 613) % 512 | 0}px`;
+  $('black').style.opacity = kf(t, [[0, 0], [25.3, 0, 'io'], [26.0, 1]]);
 
-  // MONTAGE: isolate the history card, then pan through the strip
-  const iso = ramp(t, 18.0, 18.6, 'io');
-  const PAN = 796;
-  const pan = kf(t, [[18.0, 0], [18.85, 0, 'io5'], [19.4, -PAN, 'lin'], [20.0, -PAN - 18, 'io5'], [20.55, -2 * PAN - 18, 'lin'],
-                     [21.15, -2 * PAN - 36, 'io5'], [21.95, -3 * PAN - 36]]);
-  if (t >= 18.0) {
-    const cardC = (175 + 949) / 2;                       // card centre (screen px)
-    st.cy = kf(t, [[18.0, 1130, 'io'], [18.6, 960 + (554 - cardC) * 1.47]]);
-    st.cx = 540 + 3 + pan;
-    st.s = 1.47;
-  }
-  const depth = (x) => clamp(Math.abs(x - 540) / PAN);   // 0 at centre, 1 one slot away
-  if (t >= 18.0) {
-    const d = depth(st.cx);
-    st.s *= 1 - 0.08 * d;
-    st.ry = clamp((st.cx - 540) / PAN, -1, 1) * -10;
-    blur += 3 * d; bright *= 1 - 0.55 * d;
-  }
-  phone.style.clipPath = iso > 0.001
-    ? `inset(${175 * iso}px ${14 * iso}px ${159 * iso}px ${20 * iso}px round ${60 - 30 * iso}px)` : 'none';
-  $('phoneEdge').style.opacity = 1 - iso;
-  msh.style.opacity = phoneO * (1 - iso) * (t < 18.6 ? 1 : 0);
-  phone.style.opacity = phoneO * (t > 22.2 ? 0 : 1);
-  phone.style.filter = `blur(${(blur / st.s).toFixed(2)}px) brightness(${bright.toFixed(3)})`;
-  setPhone(phone, msh, st);
+  // ================= INTRO 0–3 =================
+  {
+    // slow push of the whole space + a soft beam drifting through it
+    $('introWrap').style.transform = `scale(${1 + 0.035 * clamp(t / 3)}) translateY(${-10 * clamp(t / 3)}px)`;
+    const beamI = kf(t, [[0, 0.0, 'out'], [1.2, 0.75, 'lin'], [1.9, 0.6, 'io'], [2.45, 1.0, 'io'], [3.1, 0]]);
+    $('beam').style.opacity = beamI;
+    $('beam').style.transform = `translate(${-60 + 50 * t}px, ${10 * t}px) rotate(-14deg)`;
+    $('cool').style.opacity = kf(t, [[0, 0.4], [1.6, 0.8, 'io'], [2.4, 1.0, 'io'], [3.2, 0]]);
 
-  // training screen: reveal stagger + scroll with a slight per-card lag
+    const lineIn = (t0, dur = 0.8) => ({ o: ramp(t, t0, t0 + dur), blur: 14 * (1 - ramp(t, t0, t0 + dur + 0.1)),
+      y: 16 * (1 - ramp(t, t0, t0 + 1.0, 'expo')), ls: -0.01 + 0.07 * (1 - ramp(t, t0, t0 + 1.1)) });
+    // first two lines dissolve into the dark (fade + defocus + drift back)
+    const dis = (t0) => ramp(t, t0, t0 + 0.7, 'io');
+    let a = lineIn(0.25); let d = dis(1.35);
+    a.o *= 1 - 0.9 * d; a.blur += 5 * d; a.sc = 1 - 0.015 * d; a.y -= 6 * d;
+    textFx($('l1'), a);
+    a = lineIn(0.85); d = dis(1.6);
+    a.o *= 1 - 0.88 * d; a.blur += 5 * d; a.sc = 1 - 0.015 * d; a.y -= 6 * d;
+    textFx($('l2'), a);
+    // micro-pause 1.8–2.0, then «Система.» — the first strong moment
+    const i3 = ramp(t, 2.0, 2.7, 'expo');
+    const o3 = ramp(t, 2.86, 3.08, 'in');
+    textFx($('l3'), { o: ramp(t, 2.0, 2.5) * (1 - o3), blur: 18 * (1 - ramp(t, 2.0, 2.65)) + 14 * o3,
+                     y: 20 * (1 - i3) - 8 * o3, ls: -0.02 + 0.09 * (1 - ramp(t, 2.0, 2.9)), sc: 1 + 0.03 * o3 });
+    $('introWrap').style.display = t < 3.1 ? 'block' : 'none';
+  }
+
+  // ================= MAIN PHONE (0–17.5) =================
+  let st, blur = 0, bright = 1, phoneO = 1;
+  if (t < 14.0) {
+    st = {
+      s: kf(t, [[3.0, 0.92, 'expo'], [4.9, 1.2, 'lin'], [6.0, 1.215, 'io'], [7.1, 1.5, 'lin'], [10.0, 1.5, 'expo'],
+                [10.6, 1.38, 'lin'], [13.0, 1.38, 'io'], [13.75, 1.5, 'lin'], [14.0, 1.5]]),
+      cy: kf(t, [[3.0, 1190, 'expo'], [4.9, 1012, 'lin'], [6.0, 1000, 'io'], [7.1, 1131, 'lin'], [10.0, 1131, 'expo'],
+                 [10.6, 1080, 'lin'], [13.0, 1080, 'io'], [13.75, 1131, 'lin'], [14.0, 1131]]),
+      cx: kf(t, [[3.0, 552, 'sine'], [6.0, 536, 'io'], [7.1, 540]]),
+      rx: kf(t, [[3.0, 22, 'expo'], [4.6, 1.5, 'sine'], [6.0, 0]]),
+      ry: kf(t, [[3.0, -6, 'out'], [4.6, -1, 'sine'], [6.0, 1.5, 'io'], [7.1, 0]]),
+    };
+    phoneO = ramp(t, 3.0, 3.75);
+    blur = 22 * (1 - ramp(t, 3.0, 4.0));
+    bright = 0.2 + 0.8 * ramp(t, 3.0, 4.3);
+    const rec = kf(t, [[10.0, 0, 'expo'], [10.6, 1], [13.0, 1, 'io'], [13.75, 0]]);
+    blur += 15 * rec; bright *= 1 - 0.68 * rec;
+  } else if (t < 17.5) {
+    st = progressCam(t);
+  }
+  let W = null;
+  if (t >= 17.5) {
+    W = world(t);
+    phone.style.transform = worldTf(W, 0);
+    msh.style.transform = phone.style.transform;
+    msh.style.opacity = 1 - ramp(t, 17.5, 18.0);
+  } else {
+    phone.style.transform = phoneTf(st);
+    msh.style.transform = phone.style.transform;
+    msh.style.opacity = phoneO;
+  }
+  phone.style.opacity = phoneO * (t > 21.0 ? 0 : 1);
+  phone.style.filter = (blur > 0.05 || bright < 0.999)
+    ? `blur(${(blur / (st ? st.s : 1)).toFixed(2)}px) brightness(${bright.toFixed(3)})` : 'none';
+
+  // reveal staging: light behind the product (parallax), contact shadow, reflection
+  {
+    const pc = st || { cx: 540, cy: 1000, s: 1.2 };
+    const lightI = kf(t, [[2.75, 0, 'out'], [4.4, 1, 'lin'], [9.8, 1, 'io'], [10.4, 0.4], [13.4, 0.4, 'io'],
+                          [14.0, 0.9], [17.5, 0.9, 'io'], [18.5, 0.45], [21.2, 0.45, 'io'], [22.2, 1], [25.3, 1, 'io'], [26, 0]]);
+    $('warm').style.opacity = lightI;
+    const ly = t < 17.5 ? 1010 + (pc.cy - 1010) * 0.35 : 900;
+    const lx = t < 17.5 ? 540 + (pc.cx - 540) * 0.4 : 540;
+    $('warm').style.transform = `translate(${lx - 750}px, ${ly - 850}px) scale(${1 + 0.06 * Math.sin(t * 0.7)})`;
+    $('column').style.opacity = kf(t, [[2.8, 0, 'out'], [4.6, 1], [6.0, 1, 'io'], [7.0, 0], [21.6, 0, 'io'], [22.6, 0.8], [25.3, 0.8, 'io'], [26, 0]]);
+  }
+
+  // training screen: reveal stagger + scroll with per-card lag
   const s = trainingScroll(t);
   const lagWin = (t > 6 && t < 10) ? 1 : 0;
   for (const sl of slices) {
-    const local = sl.y0 - s;
-    const k = clamp(local / 1108, 0, 1);
+    const k = clamp((sl.y0 - s) / 1108, 0, 1);
     const sLag = lagWin ? trainingScroll(t - 0.10 * k) : s;
     const inT = 3.35 + 0.075 * Math.min(sl.i, 6);
     const rise = 46 * (1 - ramp(t, inT, inT + 0.8, 'expo'));
@@ -308,28 +367,32 @@ window.render = function (t) {
   }
   trainOverlay.style.opacity = ramp(t, 3.9, 4.5) * (1 - ramp(t, 6.0, 6.4));
 
-  // swipe Тренировка → Прогресс (14.0–14.5)
+  // swipe Тренировка → Прогресс: the upward scroll of the weights scene simply continues
   const sw = ramp(t, 14.0, 14.5, 'io5');
   trainScreen.style.transform = `translateY(${-1108 * sw}px)`;
   trainScreen.style.display = sw >= 1 ? 'none' : 'block';
   $('progScreen').style.transform = `translateY(${1108 * (1 - sw)}px)`;
   $('progScreen').style.display = sw <= 0 ? 'none' : 'block';
-  // chart draws itself (15.0–16.4), drawn by the interface's own pixels
+
+  // chart: the interface draws its own line; the progress point leads it
   {
-    const p = ramp(t, 15.0, 16.4, 'io');
-    const w = (cx1 - cx0) + 40;
-    const edge = -20 + w * p;
-    cr.style.webkitMaskImage = `linear-gradient(to right, #000 ${edge - 14}px, transparent ${edge + 14}px)`;
-    cr.style.maskImage = cr.style.webkitMaskImage;
-  }
-  $('selActive').style.opacity = ramp(t, 17.45, 17.6) ;
-  {
-    const d = ramp(t, 17.55, 17.9, 'expo');
-    $('dropdown').style.opacity = ramp(t, 17.55, 17.75);
-    $('dropdown').style.transform = `scale(${0.94 + 0.06 * d})`;
+    const p = ramp(t, 14.45, 15.85, 'io');
+    const ex = LX0 - 4 + (LX1 - LX0 + 4) * p;               // leading edge, screen px
+    const edgeLocal = ex - cx0;
+    const m = `linear-gradient(to right, #000 ${edgeLocal - 3}px, transparent ${edgeLocal + 3}px)`;
+    cr.style.webkitMaskImage = m; cr.style.maskImage = m;
+    const dot = $('dot'), ring = $('ring');
+    const dx = Math.min(ex, LX1 - 3);
+    dot.style.left = dx + 'px'; dot.style.top = lineY(dx) + 'px';
+    const pulse = ramp(t, 15.85, 16.35, 'out');
+    dot.style.opacity = ramp(t, 14.45, 14.6) * (1 - ramp(t, 15.8, 16.0));   // hands over to the UI's own end point
+    dot.style.transform = `scale(${1 + 0.25 * Math.sin(Math.PI * pulse)})`;
+    ring.style.left = dot.style.left; ring.style.top = dot.style.top;
+    ring.style.opacity = (t > 15.85 ? 0.8 : 0) * (1 - pulse);
+    ring.style.transform = `scale(${1 + 2.6 * pulse})`;
   }
 
-  // ---- WEIGHTS 10–14
+  // ================= WEIGHTS 10–14 =================
   {
     const num = (el, tin, tout) => {
       const i = ramp(t, tin, tin + 0.5, 'expo');
@@ -338,111 +401,107 @@ window.render = function (t) {
       el.style.filter = `blur(${(6 * (1 - i) + 6 * o).toFixed(2)}px)`;
       el.style.opacity = t < tin ? 0 : 1;
     };
-    num($('w1'), 10.02, 11.0);
-    num($('w2'), 11.0, 12.0);
-    num($('w3'), 12.0, null);
+    num($('w1'), 10.02, 11.0); num($('w2'), 11.0, 12.0); num($('w3'), 12.0, null);
     const lab = (el, tin, tout) => textFx(el, { o: ramp(t, tin, tin + 0.4) * (1 - ramp(t, tout, tout + 0.3)),
-                                               y: 8 * (1 - ramp(t, tin, tin + 0.6, 'expo')) - 8 * ramp(t, tout, tout + 0.3) });
-    lab($('wl1'), 10.1, 10.95);
-    lab($('wl2'), 11.08, 11.95);
-    lab($('wl3'), 12.08, 12.95);
+      y: 8 * (1 - ramp(t, tin, tin + 0.6, 'expo')) - 8 * ramp(t, tout, tout + 0.3) });
+    lab($('wl1'), 10.1, 10.95); lab($('wl2'), 11.08, 11.95); lab($('wl3'), 12.08, 12.95);
     $('w3u').style.opacity = 1 - ramp(t, 12.95, 13.25);
     const chipIn = ramp(t, 11.3, 11.75, 'expo');
     textFx($('chip'), { o: chipIn * (1 - ramp(t, 11.92, 12.15)), y: 14 * (1 - chipIn), sc: 1.48 });
-
-    // match cut: «50» leaves the composition and lands in its own field
     const fly = $('fly');
     const m = ramp(t, 13.0, 13.72, 'io');
-    if (t >= 12.999 && t < 14.0) {
+    if (t >= 12.999 && t < 14.0 && st) {
       $('w3').style.visibility = 'hidden';
-      // start: exactly where the big «50» sits; end: the field centre on the phone
       const sc = st.s;
       const fx = st.cx + (FIELD50[0] - 256) * sc;
       const fy = st.cy + (FIELD50[1] - trainingScroll(t) - 554) * sc;
-      const k = window.__FIELD_DIGIT_H__ * sc / window.__H50__;  // land at the field's digit size
-      const startCx = 136 + 0.5 * window.__W50__, startCy = 742 + window.__C50__;
-      const cxN = startCx + (fx - startCx) * m, cyN = startCy + (fy - startCy) * m;
-      const scN = 1 + (k - 1) * m;
+      const k = window.__FIELD_DIGIT_H__ * sc / window.__H50__;
+      const sx = 136 + 0.5 * window.__W50__, sy = 742 + window.__C50__;
+      const cxN = sx + (fx - sx) * m, cyN = sy + (fy - sy) * m, scN = 1 + (k - 1) * m;
       fly.style.display = 'block';
       fly.style.transform = `translate(${cxN - 0.5 * window.__W50__ * scN}px, ${cyN - window.__C50__ * scN}px) scale(${scN})`;
       fly.style.opacity = 1 - ramp(t, 13.46, 13.66);
-    } else {
-      fly.style.display = 'none';
-      $('w3').style.visibility = 'visible';
-    }
+    } else { fly.style.display = 'none'; $('w3').style.visibility = 'visible'; }
     $('weights').style.display = (t >= 10 && t < 14) ? 'block' : 'none';
   }
 
-  // ---- captions
-  textFx($('cap1'), { o: ramp(t, 7.0, 7.7) * (1 - ramp(t, 9.3, 9.8, 'io')), blur: 8 * (1 - ramp(t, 7.0, 7.8)) + 6 * ramp(t, 9.3, 9.8),
-                     y: 10 * (1 - ramp(t, 7.0, 8.0, 'expo')), ls: -0.005 + 0.05 * (1 - ramp(t, 7.0, 8.0)) });
-  textFx($('cap2'), { o: ramp(t, 15.5, 16.2) * (1 - ramp(t, 17.3, 17.75, 'io')), blur: 8 * (1 - ramp(t, 15.5, 16.3)) + 6 * ramp(t, 17.3, 17.75),
-                     y: 10 * (1 - ramp(t, 15.5, 16.5, 'expo')), ls: -0.005 + 0.05 * (1 - ramp(t, 15.5, 16.5)) });
+  // caption that stays quiet next to the chart
+  textFx($('cap2'), { o: 0.85 * ramp(t, 16.5, 17.1) * (1 - ramp(t, 17.45, 17.8, 'io')),
+    blur: 6 * (1 - ramp(t, 16.5, 17.2)) + 6 * ramp(t, 17.45, 17.8), y: 8 * (1 - ramp(t, 16.5, 17.4, 'expo')) });
 
-  // ---- montage panels P2 / P3 (same scale as the isolated card)
+  // ================= WORLD: one camera through the product (17.5–22) =================
+  const plane = $('plane'), fp = $('fphone'), fs = $('f-shadow');
+  if (W) {
+    plane.style.transform = worldTf(W, Y_PLANE);
+    plane.style.opacity = ramp(t, 17.6, 18.1) * (1 - ramp(t, 21.55, 22.0, 'io'));
+    plane.style.display = 'block';
+    const ry = kf(t, [[21.0, -10, 'io'], [22.05, -7, 'sine'], [25.6, -3.5]]);
+    const ftf = worldTf(W, Y_FINAL) + ` translate(256px, 554px) rotateY(${ry}deg) translate(-256px, -554px)`;
+    fp.style.transform = ftf; fs.style.transform = ftf;
+    fp.style.display = fs.style.display = 'block';
+    fs.style.opacity = ramp(t, 21.6, 22.2);
+  } else {
+    plane.style.display = fp.style.display = fs.style.display = 'none';
+  }
+  $('fog').style.opacity = kf(t, [[17.5, 0, 'io'], [18.3, 1], [21.3, 1, 'io'], [22.1, 0]]);
+
+  // contact shadow + reflection: reveal phone, then the final phone
   {
-    const S = 1.47;
-    const place = (img, sh, slot, h) => {
-      const x = 540 + slot * PAN + pan;
-      const d = depth(x);
-      const sc = S * (1 - 0.08 * d);
-      const ry = clamp((x - 540) / PAN, -1, 1) * -10;
-      const tf = `translate3d(${x}px, 960px, 0) rotateY(${ry}deg) scale(${sc}) translate(-240px, ${-h / 2}px)`;
-      img.style.transform = tf; sh.style.transform = tf;
-      const vis = t >= 18.0 && t < 22.4 ? 1 : 0;
-      img.style.opacity = vis * ramp(t, 18.1, 18.6); sh.style.opacity = img.style.opacity * 0.8;
-      img.style.filter = `blur(${(3 * d).toFixed(2)}px) brightness(${(1 - 0.55 * d).toFixed(3)})`;
-    };
-    place($('p2'), $('p2s'), 1, 533);
-    place($('p3'), $('p3s'), 2, 645);
+    const fl = $('floor'), rf = $('reflect');
+    let src = null, o = 0;
+    if (t < 6.5 && st) { src = st; o = phoneO * (1 - ramp(t, 5.8, 6.5)); }
+    else if (t >= 21.6) {
+      src = { cx: 540, cy: 900, s: W ? W.S : 1.08, rx: 0, ry: kf(t, [[21.0, -10, 'io'], [22.05, -7, 'sine'], [25.6, -3.5]]) };
+      o = ramp(t, 21.8, 22.5);
+    }
+    if (src) {
+      const bottom = src.cy + 554 * src.s;
+      fl.style.transform = `translate(${src.cx - 280}px, ${bottom - 30}px) scale(${src.s / 1.2}, 1)`;
+      fl.style.opacity = o * 0.9;
+      rf.style.transform = `translate3d(${src.cx}px, ${bottom + 10 + 554 * src.s}px, 0) rotateY(${src.ry || 0}deg) scale(${src.s}, ${-src.s}) translate(-256px, -554px)`;
+      rf.style.opacity = o * 0.085;
+      rf.style.filter = 'blur(3px)';
+    } else { fl.style.opacity = 0; rf.style.opacity = 0; }
   }
 
-  // ---- FINAL product shot (arrives as slot 3 of the pan, then holds)
+  // ================= PLATES =================
   {
-    const fp = $('fphone'), fs = $('f-shadow');
-    const x = 540 + 3 * PAN + 36 + pan;
-    const arrive = ramp(t, 21.15, 21.95, 'io5');
-    const settle = ramp(t, 21.95, 24.4, 'lin');
-    const d = depth(x);
-    const stF = { cx: x, cy: 900, s: (1.08 + 0.035 * settle) * (1 - 0.08 * d),
-                  rx: 4, ry: -14 * d - 9 + 4 * settle };
-    setPhone(fp, fs, stF);
-    const vis = t >= 20.5 ? 1 : 0;
-    fp.style.opacity = vis; fs.style.opacity = vis;
-    fp.style.filter = `blur(${(3 * d).toFixed(2)}px) brightness(${(1 - 0.55 * d).toFixed(3)})`;
+    const i = ramp(t, 3.75, 4.6), o = ramp(t, 5.4, 6.0, 'io');
+    textFx($('plates'), { o: 0.6 * i * (1 - o), blur: 6 * (1 - i) + 4 * o, ls: 0.42 + 0.22 * (1 - i), y: -6 * o });
+  }
+
+  // ================= FINAL 22–26 =================
+  {
     const words = $('final-cap').children;
     for (let i = 0; i < words.length; i++) {
-      const t0 = 22.55 + 0.14 * i;
-      textFx(words[i], { o: ramp(t, t0, t0 + 0.6), blur: 10 * (1 - ramp(t, t0, t0 + 0.7)),
+      const t0 = 22.7 + 0.15 * i;
+      textFx(words[i], { o: ramp(t, t0, t0 + 0.65), blur: 10 * (1 - ramp(t, t0, t0 + 0.75)),
                          y: 12 * (1 - ramp(t, t0, t0 + 0.9, 'expo')) });
     }
-    $('final-cap').style.opacity = 1;
   }
 
-  // ---- OUTRO
+  // ================= OUTRO 26–29 =================
   {
-    const i = ramp(t, 25.45, 26.35, 'expo');
-    const b = 1 - ramp(t, 25.45, 26.4, 'out');
-    textFx($('outro-logo'), { o: ramp(t, 25.45, 26.1), blur: 14 * b, sc: 0.96 + 0.04 * i });
+    const i = ramp(t, 26.45, 27.4, 'expo');
+    const b = 1 - ramp(t, 26.45, 27.45, 'out');
     $('outro-logo').style.transformOrigin = '50% 50%';
-    const n = ramp(t, 26.0, 26.8);
-    textFx($('outro-name'), { o: 0.48 * n, blur: 6 * (1 - n), ls: 0.22 + 0.1 * (1 - ramp(t, 26.0, 27.2)) });
+    textFx($('outro-logo'), { o: ramp(t, 26.45, 27.1), blur: 14 * b, sc: 0.96 + 0.04 * i });
+    const n = ramp(t, 27.0, 27.8);
+    textFx($('outro-name'), { o: 0.66 * n, blur: 6 * (1 - n), ls: 0.2 + 0.08 * (1 - ramp(t, 27.0, 28.2)) });
   }
 };
 
-// measure the big «50» once fonts are ready (used by the match cut)
 window.__setup__ = async function () {
   await document.fonts.ready;
   const c = document.createElement('canvas').getContext('2d');
   c.font = '600 320px D';
   const mt = c.measureText('50');
-  // glyph box of «50» inside the 330 px line box (letter-spacing -0.035em → ink width ≈ advance)
   window.__W50__ = mt.actualBoundingBoxRight + mt.actualBoundingBoxLeft;
   const asc = mt.fontBoundingBoxAscent, desc = mt.fontBoundingBoxDescent;
   const baseline = (330 - (asc + desc)) / 2 + asc;
   window.__H50__ = mt.actualBoundingBoxAscent;
   window.__C50__ = baseline - mt.actualBoundingBoxAscent / 2;
-  window.__FIELD_DIGIT_H__ = 16.5;   // digit height of the «50» field on the 512 px screen
+  window.__FIELD_DIGIT_H__ = 16.5;
   window.render(0);
   return true;
 };

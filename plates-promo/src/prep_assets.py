@@ -148,7 +148,9 @@ def main():
     fill_rect_from_column(tr, 340, 88, 501, 236, 330)    # ring «64,2 из 70 кг»
     Image.fromarray(tr).save(os.path.join(OUT, "training_page.png"))
     meta["training"] = {"h": len(tr), "cuts": card_slices(tr, 236)}
-    f1 = L(1)
+    f1 = L(1).copy()
+    fade = np.linspace(0, 1, 36)[:, None, None]
+    f1[1072:1108] = (f1[1072:1108] * (1 - fade) + np.array([11, 12, 15]) * fade).astype(np.uint8)
     over = f1[870:1108]
     Image.fromarray(np.dstack([over, (ramp(len(over), W, 0, 40) * 255).astype(np.uint8)])) \
         .save(os.path.join(OUT, "training_overlay.png"))
@@ -170,9 +172,23 @@ def main():
         if len(row) < 20:
             row = plot[r]
         empty[cy0 + r, cx0:cx1] = np.median(row, axis=0)
+    # polyline of the orange line (top edge of the stroke + half its width), for the
+    # leading «progress point» that travels with the draw-on
+    pts = []
+    for x in range(cx0 + 2, cx1 - 2, 3):
+        col = pr[cy0:cy1, x].astype(np.int16)
+        hot = np.nonzero((col[:, 0] > 200) & (col[:, 1] > 70) & (col[:, 1] < 170) & (col[:, 2] < 90))[0]
+        if len(hot):
+            pts.append([x, int(cy0 + hot[0] + 2)])
+    # drop columns where the «47,5» pill or a dot hid the stroke (outliers vs. neighbours)
+    ys = [p[1] for p in pts]
+    meta_line = [p for i, p in enumerate(pts)
+                 if abs(p[1] - np.median(ys[max(0, i - 3):i + 4])) <= 5]
+    while len(meta_line) > 2 and abs(meta_line[-1][1] - meta_line[-2][1]) > 5:
+        meta_line.pop()
     Image.fromarray(pr).save(os.path.join(OUT, "progress_page.png"))
     Image.fromarray(empty).save(os.path.join(OUT, "progress_page_empty_chart.png"))
-    meta["progress"] = {"h": len(pr), "chart": [cx0, cy0, cx1, cy1], "card_top": 175}
+    meta["progress"] = {"h": len(pr), "chart": [cx0, cy0, cx1, cy1], "card_top": 175, "line": meta_line}
     f640 = L(640)
     tab = f640[950:1108]
     Image.fromarray(np.dstack([tab, (ramp(len(tab), W, 0, 36) * 255).astype(np.uint8)])) \
